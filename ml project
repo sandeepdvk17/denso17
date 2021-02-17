@@ -1,0 +1,672 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "Untitled1.ipynb",
+      "provenance": [],
+      "authorship_tag": "ABX9TyNRfO2EX2d1iPPlTSVjjfuB",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/sandeepdvk17/denso17/blob/master/ml%20project\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "fEAJwASfzba0"
+      },
+      "source": [
+        "import itertools\r\n",
+        "import numpy as np\r\n",
+        "import matplotlib.pyplot as plt\r\n",
+        "from matplotlib.ticker import NullFormatter\r\n",
+        "import pandas as pd\r\n",
+        "import numpy as np\r\n",
+        "import matplotlib.ticker as ticker\r\n",
+        "from sklearn import preprocessing\r\n",
+        "%matplotlib inline"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Pv3SNe3K0MoB"
+      },
+      "source": [
+        "load the train data"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 180
+        },
+        "id": "E3vV-fee0Kyc",
+        "outputId": "fc61afd5-1490-4ed3-d018-04861a223808"
+      },
+      "source": [
+        "df = pd.read_csv('/content/loan_train.csv')\r\n",
+        "df.head()"
+      ],
+      "execution_count": 1,
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "NameError",
+          "evalue": "ignored",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mNameError\u001b[0m                                 Traceback (most recent call last)",
+            "\u001b[0;32m<ipython-input-1-978f5686429b>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[0;32m----> 1\u001b[0;31m \u001b[0mdf\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mpd\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mread_csv\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m'/content/loan_train.csv'\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      2\u001b[0m \u001b[0mdf\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mhead\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;31mNameError\u001b[0m: name 'pd' is not defined"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "dcofVXuq0fsx"
+      },
+      "source": [
+        "df.shape"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "H7U5w_5L06Ok"
+      },
+      "source": [
+        "convert label names\r\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Ckh8l3Fr1Bd3"
+      },
+      "source": [
+        "df['due_date'] = pd.to_datetime(df['due_date'])\r\n",
+        "df['effective_date'] = pd.to_datetime(df['effective_date'])\r\n",
+        "df.head()"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "lJwBwZ_b1JGw"
+      },
+      "source": [
+        "data visualization\r\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "GhwYxgdg1OCa"
+      },
+      "source": [
+        "df['loan_status'].value_counts()"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "DyDmespV1S9A"
+      },
+      "source": [
+        "import seaborn as sns\r\n",
+        "bins = np.linspace(df.Principal.min(), df.Principal.max(), 10)\r\n",
+        "g = sns.FacetGrid(df, col=\"Gender\", hue=\"loan_status\", palette=\"Set1\", col_wrap=2)\r\n",
+        "g.map(plt.hist, 'Principal', bins=bins, ec=\"k\")\r\n",
+        "g.axes[-1].legend()\r\n",
+        "plt.show()"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "vR6VGUoI1c5V"
+      },
+      "source": [
+        "bins = np.linspace(df.age.min(), df.age.max(), 10)\r\n",
+        "g = sns.FacetGrid(df, col=\"Gender\", hue=\"loan_status\", palette=\"Set1\", col_wrap=2)\r\n",
+        "g.map(plt.hist, 'age', bins=bins, ec=\"k\")\r\n",
+        "\r\n",
+        "g.axes[-1].legend()\r\n",
+        "plt.show()"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "TJjDx_H41d97"
+      },
+      "source": [
+        "preprocessing"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "5wiYWSKd1lbI"
+      },
+      "source": [
+        "df['dayofweek'] = df['effective_date'].dt.dayofweek\r\n",
+        "bins = np.linspace(df.dayofweek.min(), df.dayofweek.max(), 10)\r\n",
+        "g = sns.FacetGrid(df, col=\"Gender\", hue=\"loan_status\", palette=\"Set1\", col_wrap=2)\r\n",
+        "g.map(plt.hist, 'dayofweek', bins=bins, ec=\"k\")\r\n",
+        "g.axes[-1].legend()\r\n",
+        "plt.show()"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "HyOUwq-_1t3G"
+      },
+      "source": [
+        "df['weekend'] = df['dayofweek'].apply(lambda x: 1 if (x>3)  else 0)\r\n",
+        "df.head()"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "P3_rgYaN1wTh"
+      },
+      "source": [
+        "converting categorical values to numeric"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "W_GAQ4f813yD"
+      },
+      "source": [
+        "df.groupby(['Gender'])['loan_status'].value_counts(normalize=True)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "WZJ-7-Ta1-T6"
+      },
+      "source": [
+        "df['Gender'].replace(to_replace=['male','female'], value=[0,1],inplace=True)\r\n",
+        "df.head()"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "M3UQJkXA2Dx5"
+      },
+      "source": [
+        "df.groupby(['education'])['loan_status'].value_counts(normalize=True)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "h5YiWWWG2OhR"
+      },
+      "source": [
+        "df[['Principal','terms','age','Gender','education']].head()"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "ZwfUab6y2SKl"
+      },
+      "source": [
+        "using encoding to convert categorical to binary variables to appending it to df"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "842wfSC12kN0"
+      },
+      "source": [
+        "Feature = df[['Principal','terms','age','Gender','weekend']]\r\n",
+        "Feature = pd.concat([Feature,pd.get_dummies(df['education'])], axis=1)\r\n",
+        "Feature.drop(['Master or Above'], axis = 1,inplace=True)\r\n",
+        "Feature.head()"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "c5tOWuTB2nSx"
+      },
+      "source": [
+        "selecting the feature"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "S9LSzCm62poR"
+      },
+      "source": [
+        "X = Feature\r\n",
+        "X[0:5]"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Yqq762Tt2wDf"
+      },
+      "source": [
+        "y = df['loan_status'].values\r\n",
+        "y[0:5]"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Qr8Ql3Uk2yjo"
+      },
+      "source": [
+        "normalising the data"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "QF8erKNC216j"
+      },
+      "source": [
+        "X= preprocessing.StandardScaler().fit(X).transform(X)\r\n",
+        "X[0:5]"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "yymKEFFJ26ev"
+      },
+      "source": [
+        "KNN"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "sublZ9T827f4"
+      },
+      "source": [
+        "#Train-Test Split\r\n",
+        "from sklearn.model_selection import train_test_split\r\n",
+        "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "SJAi50Je2_UL"
+      },
+      "source": [
+        "#training\r\n",
+        "from sklearn.neighbors import KNeighborsClassifier\r\n",
+        "from sklearn import metrics\r\n",
+        "\r\n",
+        "Ks = 12\r\n",
+        "mean_acc = np.zeros((Ks-1))\r\n",
+        "std_acc = np.zeros((Ks-1))\r\n",
+        "ConfustionMtx=[];\r\n",
+        "for n in range(1,Ks):\r\n",
+        "    neigh = KNeighborsClassifier(n_neighbors=n).fit(X_train, y_train)\r\n",
+        "    yhat = neigh.predict(X_test)\r\n",
+        "    mean_acc[n-1] = metrics.accuracy_score(y_test, yhat)\r\n",
+        "    std_acc[n-1] = np.std(yhat==y_test)/np.sqrt(yhat.shape[0])\r\n",
+        "mean_acc"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "9uwEXiA93L0q"
+      },
+      "source": [
+        "plt.plot(range(1,Ks),mean_acc)\r\n",
+        "plt.fill_between(range(1,Ks),mean_acc - 1 * std_acc,mean_acc + 1 * std_acc, alpha=0.10)\r\n",
+        "plt.legend(('Accuracy ', '+/- 3xstd'))\r\n",
+        "plt.ylabel('Accuracy ')\r\n",
+        "plt.xlabel('Number of Neighbors (K)')\r\n",
+        "plt.tight_layout()\r\n",
+        "plt.show()\r\n",
+        "\r\n",
+        "print( \"The best accuracy was with\", mean_acc.max(), \"with k=\", mean_acc.argmax()+1) \r\n",
+        "\r\n",
+        "neigh = KNeighborsClassifier(n_neighbors=mean_acc.argmax()+1).fit(X_train, y_train)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "MY1gfdmH3OzS"
+      },
+      "source": [
+        "decision trees"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "suVdOCof3RIj"
+      },
+      "source": [
+        "from sklearn.tree import DecisionTreeClassifier\r\n",
+        "from sklearn.externals.six import StringIO\r\n",
+        "import matplotlib.image as mpimg\r\n",
+        "from sklearn import tree\r\n",
+        "\r\n",
+        "#Modelling\r\n",
+        "modeltree = DecisionTreeClassifier(criterion=\"entropy\")\r\n",
+        "modeltree.fit(X_train, y_train)\r\n",
+        "\r\n",
+        "#Prediction\r\n",
+        "predTree = modeltree.predict(X_test)\r\n",
+        "print(predTree[0:5])\r\n",
+        "print(y_test[0:5])\r\n",
+        "\r\n",
+        "names = Feature.columns"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "RTj2x7fk3cLz"
+      },
+      "source": [
+        "import graphviz \r\n",
+        "import pydotplus\r\n",
+        "dot_data = StringIO()\r\n",
+        "filename = \"tree.png\"\r\n",
+        "featureNames = Feature.columns\r\n",
+        "out=tree.export_graphviz(modeltree,feature_names=featureNames, out_file=dot_data, class_names= np.unique(y_train), filled=True,  special_characters=True,rotate=False)  \r\n",
+        "graph = pydotplus.graph_from_dot_data(dot_data.getvalue())  \r\n",
+        "graph = pydotplus.graph_from_dot_data(dot_data.getvalue())  \r\n",
+        "graph.write_png(filename)\r\n",
+        "img = mpimg.imread(filename)\r\n",
+        "plt.figure(figsize=(100, 200))\r\n",
+        "plt.imshow(img,interpolation='nearest')"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "_8Ocj-LJ3hyU"
+      },
+      "source": [
+        "SVM"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "1nLllHY63i4w"
+      },
+      "source": [
+        "import pylab as pl\r\n",
+        "import scipy.optimize as opt\r\n",
+        "from sklearn import preprocessing\r\n",
+        "from sklearn import svm\r\n",
+        "\r\n",
+        "#Modelling\r\n",
+        "clf = svm.SVC(kernel=\"sigmoid\")\r\n",
+        "clf.fit(X_train, y_train)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "i-QwHY3u3p0T"
+      },
+      "source": [
+        "#Predict\r\n",
+        "yhat = clf.predict(X_test)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "XOMk9ab43qkE"
+      },
+      "source": [
+        "#Evaluation\r\n",
+        "from sklearn.metrics import f1_score\r\n",
+        "f1_score(y_test,yhat, average=\"weighted\")"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "mLQ_iLQ-3xVI"
+      },
+      "source": [
+        "logistic regression"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "lSDx1z8t3z15"
+      },
+      "source": [
+        "#Modelling\r\n",
+        "from sklearn.linear_model import LogisticRegression\r\n",
+        "LR = LogisticRegression(C=0.01, solver=\"liblinear\").fit(X_train,y_train)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "e1pKa8Jp35Rj"
+      },
+      "source": [
+        "#Prediction\r\n",
+        "yhat = LR.predict(X_test)\r\n",
+        "yhat_prob = LR.predict_proba(X_test)\r\n",
+        "\r\n",
+        "#Evaluation\r\n",
+        "from sklearn.metrics import jaccard_similarity_score\r\n",
+        "jaccard_similarity_score(y_test,yhat)"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "XyOiSZz14B-m"
+      },
+      "source": [
+        "model evaluation using test data"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "bxa-NeRj4LoG"
+      },
+      "source": [
+        "from sklearn.metrics import jaccard_score\r\n",
+        "from sklearn.metrics import f1_score\r\n",
+        "from sklearn.metrics import log_loss\r\n",
+        "from sklearn.preprocessing import StandardScaler\r\n",
+        "import numpy as np"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "v1591acx4SnG"
+      },
+      "source": [
+        "test_df = pd.read_csv('/content/loan_test.csv')\r\n",
+        "test_df.head()"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "1A_xeO5Y4XRh"
+      },
+      "source": [
+        "# convert date time\r\n",
+        "test_df['due_date'] = pd.to_datetime(test_df['due_date'])\r\n",
+        "test_df['effective_date'] = pd.to_datetime(test_df['effective_date'])\r\n",
+        "test_df['dayofweek'] = test_df['effective_date'].dt.dayofweek\r\n",
+        "# evaulate weekend field\r\n",
+        "test_df['weekend'] = test_df['dayofweek'].apply(lambda x: 1 if (x>3)  else 0)\r\n",
+        "# work out education level\r\n",
+        "test_feature = test_df[['Principal','terms','age','Gender','weekend']]\r\n",
+        "test_feature = pd.concat([test_feature,pd.get_dummies(test_df['education'])], axis=1)\r\n",
+        "test_feature.drop(['Master or Above'], axis = 1,inplace=True)\r\n",
+        "test_feature.head()\r\n",
+        "# normalize the test data\r\n",
+        "test_X = preprocessing.StandardScaler().fit_transform(test_feature)\r\n",
+        "test_X[0:5]\r\n",
+        "# and target result\r\n",
+        "test_y = test_df['loan_status'].values\r\n",
+        "test_y[0:5]"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "oNVbH6ob4db1"
+      },
+      "source": [
+        "# normalize the test data\r\n",
+        "TestX = preprocessing.StandardScaler().fit_transform(test_feature)\r\n",
+        "TestX[0:5]\r\n",
+        "# and target result\r\n",
+        "TestY = test_df['loan_status'].values\r\n",
+        "TestY[0:5]"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "ziCT1ZZq4h2V"
+      },
+      "source": [
+        "knn_pred=neigh.predict(TestX)\r\n",
+        "jc1=jaccard_similarity_score(TestY, knn_pred)\r\n",
+        "fs1=f1_score(TestY, knn_pred, average='weighted')\r\n",
+        "\r\n",
+        "tree_pred=modeltree.predict(TestX)\r\n",
+        "jc2=jaccard_similarity_score(TestY, tree_pred)\r\n",
+        "fs2=f1_score(TestY, tree_pred, average='weighted')\r\n",
+        "\r\n",
+        "svm_pred=clf.predict(TestX)\r\n",
+        "jc3=jaccard_similarity_score(TestY, svm_pred)\r\n",
+        "fs3=f1_score(TestY, svm_pred, average='weighted')\r\n",
+        "\r\n",
+        "log_pred=LR.predict(TestX)\r\n",
+        "proba=LR.predict_proba(TestX)\r\n",
+        "jc4=jaccard_similarity_score(TestY, log_pred)\r\n",
+        "fs4=f1_score(TestY, log_pred, average='weighted')  \r\n",
+        "ll4=log_loss(TestY, proba)\r\n",
+        "\r\n",
+        "list_jc = [jc1, jc2, jc3, jc4]\r\n",
+        "list_fs = [fs1, fs2, fs3, fs4]\r\n",
+        "list_ll = ['NA', 'NA', 'NA', ll4]\r\n",
+        "\r\n",
+        "import pandas as pd\r\n",
+        "\r\n",
+        "# fomulate the report format\r\n",
+        "df = pd.DataFrame(list_jc, index=['KNN','Decision Tree','SVM','Logistic Regression'])\r\n",
+        "df.columns = ['Jaccard']\r\n",
+        "df.insert(loc=1, column='F1-score', value=list_fs)\r\n",
+        "df.insert(loc=2, column='LogLoss', value=list_ll)\r\n",
+        "df.columns.name = 'Algorithm'\r\n",
+        "df"
+      ],
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
